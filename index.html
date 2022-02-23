@@ -1,0 +1,182 @@
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>URL Shortener</title>
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+  <style>
+    body {
+      padding-top: 5rem;
+    }
+
+    .starter-template {
+      padding: 3rem 1.5rem;
+      text-align: center;
+    }
+
+    .bd-placeholder-img {
+      font-size: 1.125rem;
+      text-anchor: middle;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    @media (min-width: 768px) {
+      .bd-placeholder-img-lg {
+        font-size: 3.5rem;
+      }
+    }
+
+   .disclaimer{
+	color: red;
+   }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+    <a class="navbar-brand" href="#">Serverless URL Trimmer</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="true" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="navbar-collapse collapse show" id="navbarsExampleDefault" style="">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+          <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+        </li>
+        <li class="nav-item">
+          
+        </li>
+        
+        
+      </ul>
+      
+    </div>
+  </nav>
+
+  <main role="main" class="container">
+
+    <div class="starter-template">
+        
+        <div id="successMessage">
+        </div>
+
+      <h1>Shorten any URL to a semi-custom link</h1>
+
+<div class="row g-12">
+  <div class="col-md-6">
+    <label for="validationServer01" class="form-label">Site Nickname</label>
+    <input type="text" class="form-control" id="validationServer01" placeholder="DogPics" required="">
+  </div>
+  
+  
+  <div class="col-md-6">
+    <label for="validationServer03" class="form-label">Destination URL</label>
+    <input type="text" class="form-control" id="validationServer03" aria-describedby="validationServer03Feedback" required="" placeholder = "https://www.mysite.com">
+    <div> Please enter the full address starting with http</div>
+    <div id="validationServer03Feedback" class="invalid-feedback">Please enter destination URL</div>
+  </div>
+  
+  
+  
+  <div class="col-12">
+    <button class="btn btn-primary" id="createurl" type="submit" style="margin-top: 10px">Create Short URL</button>
+  </div>
+</div>
+      
+    </div>
+
+  <h3>About this site</h3>
+  <div class="row g-12">
+      <p>This serverless site has been built and hosted 100% on the AWS platform.</p>
+	<p> All code was written on Cloud9 and all services are launched with a custom CloudFormation template.</p>
+      <p>This is a static website hosted on S3. It is built using Bootstrap 5 and jQuery for functionality.</p>
+	<p> The site makes an API call using ajax to interact with a serverless Aurora MySQL Database.</p>
+      <p>The HTTP API is built using AWS API Gateway and passes queries to Lambda. Lambda runs a python script to querie the database and return responses to the API Gateway, which in turn returns responses back to the site.</p>
+      <p class="disclaimer">Were this a live website I would purchase and route a domain with Route 53. The url would be much shorter than the api endpoint being returned. </p>
+	<p class="disclaimer">Example: "myurl.com/?s=key"_ </p>
+	<p>I would also route all requests through CloudFront for a secure HTTPS connection and reduced latency on a global scale.</p>
+      <p>All code is availble upon request if you'd like to look behind the scenes.</p>
+  </div>
+
+  </main><!-- /.container -->
+
+  <script
+    src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous">
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous">
+  </script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous">
+  </script>
+<script>
+
+    function turnRed(field){
+        field == "short" ? $("#validationServer01").addClass("is-invalid") : $("#validationServer03").addClass("is-invalid");
+    }
+
+    function completedFields(){
+        deleteSuccessMessage();
+        $("#validationServer01").val() == "" ? turnRed("short"): $("#validationServer01").removeClass("is-invalid");
+        $("#validationServer03").val() == "" ? turnRed("url"):$("#validationServer03").removeClass("is-invalid") ;
+        $("#validationServer01").val() != "" && $("#validationServer03").val() != "" ? getAPI() : alert("Please complete all fields");
+
+    };
+
+    function successMessage(message){
+
+        $("#successMessage").html(
+           '<div class="alert alert-success" role="alert">'+
+              '<p> Success! Your new custom url is https://hjoo0tazh7.execute-api.us-east-1.amazonaws.com/?s='+ message +'</p>'+ //need to replace domain
+            '</div>'
+        )
+    };
+
+    function deleteSuccessMessage(){
+
+        $("#successMessage").html("")
+    };
+
+    function getAPI(){
+        var short = $("#validationServer01").val();
+        var url = $("#validationServer03").val();
+        var queryString = "https://hjoo0tazh7.execute-api.us-east-1.amazonaws.com/?select=check&short=" + short; 
+
+        //Runs initial check to see if entry already exists
+        $.ajax({
+            type: "GET",
+            url: queryString,
+            dataType: "json",
+            success: function (data){
+                sessionStorage.setItem("data", JSON.stringify(data));
+            }
+        })
+        check = JSON.parse(sessionStorage.getItem("data"));
+
+        if (check){
+            turnRed("short");
+            alert("This nickname is already taken.");
+        }
+
+        queryString = "https://hjoo0tazh7.execute-api.us-east-1.amazonaws.com/?select=new&short=" + short +"&url=" + url;
+
+        //Adds new entry if check returns false
+        if (check == false){  
+            $.ajax({
+                type: "GET",
+                url: queryString,  
+            }) //end ajax
+
+            successMessage(short);
+
+        }; 
+    }; 
+
+    //Triggers form completion check
+    $("#createurl").on("click", function(){completedFields()}); 
+</script>
+
+</body></html>
